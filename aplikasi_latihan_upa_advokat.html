@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AyoAdvokat - Platform Latihan Ujian Profesi Advokat (UPA)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#080d1a',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="bg-navy-900 text-white sticky top-0 z-50 shadow-md border-b border-navy-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                <div class="w-10 h-10 rounded-lg bg-gold-500 flex items-center justify-center text-navy-900 font-bold text-xl shadow-lg">
+                    <i class="fa-solid font-bold text-navy-900">⚖️</i>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-wide text-white">Ayo<span class="text-gold-400">Advokat</span></span>
+                    <span class="hidden sm:inline-block text-xs bg-navy-800 text-gold-400 px-2 py-0.5 rounded ml-2 font-medium border border-gold-500/30">UPA PERADI</span>
+                </div>
+            </div>
+
+            <!-- Quiz Timer & Progress (Shown when Quiz is Active) -->
+            <div id="top-quiz-info" class="hidden flex items-center space-x-4 bg-navy-800 px-4 py-1.5 rounded-full border border-slate-700">
+                <div class="flex items-center space-x-2 text-gold-400">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="timer-display" class="font-mono text-base font-bold">00:00:00</span>
+                </div>
+                <div class="h-4 w-px bg-slate-700"></div>
+                <div class="text-xs text-slate-300">
+                    Progress: <span id="quiz-progress-text" class="font-semibold text-white">0/0</span>
+                </div>
+            </div>
+
+            <!-- Right Profile / Controls -->
+            <div class="flex items-center space-x-3">
+                <button onclick="resetAllData()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition" title="Reset Semua Data Latihan">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> Reset Data
+                </button>
+                <div class="flex items-center space-x-2 pl-2 border-l border-slate-700">
+                    <div class="w-8 h-8 rounded-full bg-gold-500/20 text-gold-400 flex items-center justify-center font-bold text-sm border border-gold-500/40">
+                        SH
+                    </div>
+                    <span class="text-sm font-medium text-slate-200 hidden md:inline">Calon Advokat</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sticky top-22">
+                <nav class="space-y-1" id="sidebar-menu">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-chart-pie w-5 text-center text-slate-500"></i>
+                        <span>Dashboard</span>
+                    </button>
+
+                    <button onclick="switchTab('categories')" id="nav-categories" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-book-open w-5 text-center text-slate-500"></i>
+                        <span>Latihan Soal</span>
+                    </button>
+
+                    <button onclick="startTryoutSimulation()" id="nav-tryout" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-award w-5 text-center text-slate-500"></i>
+                        <span>Simulasi TryOut UPA</span>
+                    </button>
+
+                    <button onclick="switchTab('analytics')" id="nav-analytics" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-chart-line w-5 text-center text-slate-500"></i>
+                        <span>Statistik & Hasil</span>
+                    </button>
+
+                    <button onclick="switchTab('bookmarks')" id="nav-bookmarks" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-bookmark w-5 text-center text-slate-500"></i>
+                        <span>Soal Ditandai</span>
+                    </button>
+                </nav>
+
+                <div class="mt-8 pt-4 border-t border-slate-200">
+                    <div class="bg-gradient-to-br from-navy-900 to-slate-800 text-white rounded-lg p-3.5 text-xs">
+                        <p class="font-bold text-gold-400 mb-1"><i class="fa-solid fa-circle-info mr-1"></i> Tips UPA</p>
+                        <p class="text-slate-300 leading-relaxed">Nilai kelulusan UPA umumnya mensyaratkan skor minimal 70. Perbanyak latihan Pengendalian Waktu & Hukum Acara!</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENT VIEWS AREA -->
+        <main class="flex-1 min-w-0">
+
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="view-dashboard" class="tab-content space-y-6">
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-navy-900 via-navy-800 to-slate-900 rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl text-gold-400">⚖️</div>
+                    <div class="relative z-10 max-w-2xl">
+                        <span class="bg-gold-500/20 text-gold-400 text-xs px-2.5 py-1 rounded-full font-semibold border border-gold-500/30">Persiapan UPA PERADI</span>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold mt-2 text-white">Siap Menjadi Advokat Profesional?</h1>
+                        <p class="text-slate-300 text-sm mt-2 leading-relaxed">Uji pemahaman Kode Etik Advokat, Hukum Acara Perdata, Pidana, PTUN, dan Pengadilan Agama dengan paket latihan terupdate.</p>
+                        <div class="mt-5 flex flex-wrap gap-3">
+                            <button onclick="switchTab('categories')" class="bg-gold-500 hover:bg-gold-600 text-navy-900 font-bold px-5 py-2.5 rounded-lg text-sm shadow-md transition transform active:scale-95">Mulai Latihan Per Materi</button>
+                            <button onclick="startTryoutSimulation()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg text-sm border border-slate-700 transition">Simulasi Full TryOut</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="text-xs text-slate-500 font-medium">Total Soal Dikerjakan</div>
+                        <div id="dash-stat-total" class="text-2xl font-bold text-slate-800 mt-1">0</div>
+                        <div class="text-[10px] text-slate-400 mt-1">Aktivitas Latihan</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="text-xs text-slate-500 font-medium">Akurasi Jawaban</div>
+                        <div id="dash-stat-accuracy" class="text-2xl font-bold text-emerald-600 mt-1">0%</div>
+                        <div class="text-[10px] text-slate-400 mt-1">Persentase Benar</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="text-xs text-slate-500 font-medium">Try Out Selesai</div>
+                        <div id="dash-stat-tryouts" class="text-2xl font-bold text-navy-900 mt-1">0</div>
+                        <div class="text-[10px] text-slate-400 mt-1">Sesi Ujian Selesai</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="text-xs text-slate-500 font-medium">Soal Ditandai</div>
+                        <div id="dash-stat-bookmarks" class="text-2xl font-bold text-gold-600 mt-1">0</div>
+                        <div class="text-[10px] text-slate-400 mt-1">Disimpan Untuk Reviu</div>
+                    </div>
+                </div>
+
+                <!-- Category Quick Selection -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fa-solid fa-layer-group text-gold-500 mr-2"></i> Materi Ujian Profesi Advokat
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="dashboard-category-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. CATEGORIES SELECTION VIEW -->
+            <div id="view-categories" class="tab-content space-y-6 hidden">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-800">Pilihan Materi Latihan</h1>
+                        <p class="text-sm text-slate-500">Pilih modul hukum yang ingin Anda latih secara spesifik.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="category-list-full">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- 3. QUIZ PRACTICE & EXAMINATION VIEW -->
+            <div id="view-quiz" class="tab-content space-y-6 hidden">
+                <!-- Mode & Header Bar -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div>
+                        <span id="quiz-category-badge" class="bg-navy-900 text-gold-400 text-xs px-2.5 py-1 rounded font-semibold uppercase tracking-wider">Hukum Acara Perdata</span>
+                        <h2 id="quiz-title" class="text-lg font-bold text-slate-800 mt-1">Latihan Soal Sub-Materi</h2>
+                    </div>
+
+                    <!-- Mode Toggle -->
+                    <div class="flex items-center space-x-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                        <button id="mode-practice-btn" onclick="setQuizMode('practice')" class="px-3 py-1.5 rounded text-xs font-semibold transition">
+                            <i class="fa-solid fa-graduation-cap mr-1"></i> Mode Latihan
+                        </button>
+                        <button id="mode-exam-btn" onclick="setQuizMode('exam')" class="px-3 py-1.5 rounded text-xs font-semibold transition">
+                            <i class="fa-solid fa-stopwatch mr-1"></i> Mode Ujian
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Quiz Layout: Left Question Card + Right Number Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Question Card (2 Cols wide) -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 relative">
+                            <!-- Question Meta Header -->
+                            <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
+                                <span class="text-sm font-semibold text-slate-500">
+                                    Soal No. <span id="current-question-num" class="text-navy-900 font-bold text-lg">1</span> Dari <span id="total-questions-num">10</span>
+                                </span>
+                                <div class="flex items-center space-x-3">
+                                    <button id="flag-btn" onclick="toggleFlagCurrentQuestion()" class="flex items-center space-x-1.5 text-xs text-slate-500 hover:text-amber-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 transition">
+                                        <i class="fa-regular fa-flag"></i>
+                                        <span>Ragu-ragu</span>
+                                    </button>
+                                    <button id="bookmark-btn" onclick="toggleBookmarkCurrentQuestion()" class="flex items-center space-x-1.5 text-xs text-slate-500 hover:text-gold-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 transition">
+                                        <i class="fa-regular fa-bookmark"></i>
+                                        <span>Simpan</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Question Text -->
+                            <div id="question-text" class="text-slate-800 text-base leading-relaxed font-medium mb-6">
+                                Memuat teks pertanyaan...
+                            </div>
+
+                            <!-- Multiple Choice Options -->
+                            <div id="options-container" class="space-y-3">
+                                <!-- Populated dynamically -->
+                            </div>
+
+                            <!-- Answer Explanation Box (Shown in Practice mode or after answered) -->
+                            <div id="explanation-box" class="hidden mt-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                                <div class="flex items-center space-x-2 text-navy-900 font-bold text-sm mb-2">
+                                    <i class="fa-solid fa-book-bookmark text-gold-500"></i>
+                                    <span>Pembahasan & Dasar Hukum:</span>
+                                </div>
+                                <p id="explanation-text" class="text-sm text-slate-600 leading-relaxed">
+                                    Penjelasan akan muncul di sini.
+                                </p>
+                                <div id="legal-basis-tag" class="mt-2 inline-block bg-gold-500/10 text-gold-600 text-xs font-semibold px-2.5 py-1 rounded border border-gold-500/20">
+                                    Dasar Hukum: -
+                                </div>
+                            </div>
+
+                            <!-- Navigation Buttons Footer -->
+                            <div class="mt-8 pt-4 border-t border-slate-100 flex justify-between items-center">
+                                <button id="prev-q-btn" onclick="navigateQuestion(-1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg transition disabled:opacity-40">
+                                    <i class="fa-solid fa-arrow-left mr-1"></i> Sebelum
+                                </button>
+
+                                <button id="finish-quiz-btn" onclick="finishQuizConfirmation()" class="hidden px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-lg shadow-sm transition">
+                                    Selesai & Kumpulkan
+                                </button>
+
+                                <button id="next-q-btn" onclick="navigateQuestion(1)" class="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-white font-semibold text-sm rounded-lg transition">
+                                    Berikut <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question Navigator Grid (Right Column) -->
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                            <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center justify-between">
+                                <span>Navigasi Soal</span>
+                                <span class="text-xs font-normal text-slate-500">Klik nomor untuk melompat</span>
+                            </h3>
+
+                            <!-- Legend -->
+                            <div class="grid grid-cols-2 gap-2 text-[11px] mb-4 p-2 bg-slate-50 rounded-lg border border-slate-100">
+                                <div class="flex items-center space-x-1.5">
+                                    <div class="w-3 h-3 rounded bg-navy-900"></div>
+                                    <span class="text-slate-600">Terjawab</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5">
+                                    <div class="w-3 h-3 rounded bg-white border border-slate-300"></div>
+                                    <span class="text-slate-600">Belum</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5">
+                                    <div class="w-3 h-3 rounded bg-amber-500"></div>
+                                    <span class="text-slate-600">Ragu-ragu</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5">
+                                    <div class="w-3 h-3 rounded bg-gold-400"></div>
+                                    <span class="text-slate-600">Sedang Aktif</span>
+                                </div>
+                            </div>
+
+                            <!-- Grid Number Buttons -->
+                            <div id="question-grid" class="grid grid-cols-5 gap-2 max-h-72 overflow-y-auto custom-scrollbar p-1">
+                                <!-- Populated by JS -->
+                            </div>
+
+                            <div class="mt-5 pt-3 border-t border-slate-100">
+                                <button onclick="finishQuizConfirmation()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg transition border border-slate-200">
+                                    Akhiri Ujian Sekarang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. ANALYTICS & REVIEW RESULT VIEW -->
+            <div id="view-analytics" class="tab-content space-y-6 hidden">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h1 class="text-xl font-bold text-slate-800 mb-1">Hasil & Analisis Latihan Soal</h1>
+                    <p class="text-sm text-slate-500 mb-6">Ringkasan performa pengerjaan soal UPA Anda.</p>
+
+                    <!-- Score Card -->
+                    <div id="result-summary-card" class="bg-slate-900 text-white rounded-xl p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div class="text-center md:text-left">
+                            <div class="text-xs text-gold-400 font-semibold uppercase tracking-wider mb-1">Nilai Akhir UPA</div>
+                            <div id="result-score-digit" class="text-5xl font-extrabold text-white">0</div>
+                            <div id="result-status-badge" class="mt-2 inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                DILAPORKAN LULUS (>70)
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4 text-center border-t md:border-t-0 md:border-l border-slate-800 pt-4 md:pt-0 md:pl-8">
+                            <div>
+                                <div class="text-xs text-slate-400">Benar</div>
+                                <div id="result-correct-count" class="text-2xl font-bold text-emerald-400">0</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Salah</div>
+                                <div id="result-wrong-count" class="text-2xl font-bold text-rose-400">0</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Kosong</div>
+                                <div id="result-empty-count" class="text-2xl font-bold text-amber-400">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown & Review Button -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-slate-800 text-base">Detail Jawaban & Pembahasan</h3>
+                        <div id="analytics-review-list" class="space-y-4">
+                            <p class="text-slate-500 text-sm italic">Belum ada hasil latihan baru. Mulai latihan soal untuk melihat breakdown pembahasan.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. BOOKMARKS VIEW -->
+            <div id="view-bookmarks" class="tab-content space-y-6 hidden">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h1 class="text-xl font-bold text-slate-800 mb-1">Soal yang Ditandai (Bookmarks)</h1>
+                    <p class="text-sm text-slate-500 mb-6">Kumpulan soal yang Anda simpan untuk dipelajari kembali.</p>
+
+                    <div id="bookmarks-list" class="space-y-4">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-950 text-slate-400 border-t border-navy-900 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs space-y-2">
+            <p>&copy; 2026 AyoAdvokat - Platform Latihan Mandiri Ujian Profesi Advokat PERADI.</p>
+            <p class="text-slate-500">Materi mengacu pada Undang-Undang No. 18 Tahun 2003, Kode Etik Advokat Indonesia, HIR/RBg, dan KUHAP.</p>
+        </div>
+    </footer>
+
+    <!-- CONFIRMATION MODAL -->
+    <div id="modal-confirm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <h3 class="text-lg font-bold text-slate-800" id="modal-title">Konfirmasi Selesai Ujian</h3>
+            <p class="text-sm text-slate-600" id="modal-body">Apakah Anda yakin ingin menyelesaikan sesi latihan ini? Seluruh jawaban akan dihitung dan ditampilkan pembahasannya.</p>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg">Batal</button>
+                <button onclick="submitQuizNow()" class="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-white text-sm font-semibold rounded-lg">Ya, Selesaikan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        /* ==========================================================================
+           1. QUESTION DATABASE (Materi Nyata UPA Advokat PERADI)
+           ========================================================================== */
+        const QUESTION_BANK = [
+            // CATEGORY 1: UU Advokat & Kode Etik (cat_1)
+            {
+                id: 101,
+                categoryId: "cat_1",
+                categoryName: "UU Advokat & Kode Etik",
+                question: "Berdasarkan UU No. 18 Tahun 2003 tentang Advokat, siapakah yang berwenang melakukan penindakan terhadap pelanggaran Kode Etik Advokat?",
+                options: [
+                    "A. Mahkamah Agung",
+                    "B. Dewan Kehormatan Organisasi Advokat",
+                    "C. Pengadilan Tinggi",
+                    "D. Kepolisian Republik Indonesia"
+                ],
+                correctAnswer: 1, // B
+                explanation: "Pasal 26 ayat (1) UU No. 18 Tahun 2003 mengatur bahwa Dewan Kehormatan Organisasi Advokat memeriksa dan mengadili pelanggaran kode etik profesi advokat.",
+                legalBasis: "Pasal 26 UU No. 18 Tahun 2003 tentang Advokat"
+            },
+            {
+                id: 102,
+                categoryId: "cat_1",
+                categoryName: "UU Advokat & Kode Etik",
+                question: "Seorang Advokat dilarang memegang jabatan lain yang bertentangan dengan kepentingan tugas dan martabat profesinya. Hal ini diatur dalam UU Advokat pada...",
+                options: [
+                    "A. Pasal 15",
+                    "B. Pasal 20 ayat (1)",
+                    "C. Pasal 5 ayat (1)",
+                    "D. Pasal 9 ayat (2)"
+                ],
+                correctAnswer: 1, // B
+                explanation: "Pasal 20 ayat (1) UU No. 18 Tahun 2003 menyebutkan Advokat dilarang memegang jabatan lain yang bertentangan dengan kepentingan tugas dan martabat profesinya.",
+                legalBasis: "Pasal 20 ayat (1) UU No. 18/2003"
+            },
+            {
+                id: 103,
+                categoryId: "cat_1",
+                categoryName: "UU Advokat & Kode Etik",
+                question: "Menurut Kode Etik Advokat Indonesia (KEAI), hubungan antara Advokat dengan teman sejawat harus dilandasi oleh sikap...",
+                options: [
+                    "A. Persaingan ketat dalam memperoleh klien",
+                    "B. Saling menghormati, menghargai, dan mempercayai",
+                    "C. Saling mengawasi kerahasiaan berkas",
+                    "D. Mengutamakan kepentingan finansial kelompok"
+                ],
+                correctAnswer: 1, // B
+                explanation: "Pasal 5 ayat (1) KEAI menyebutkan bahwa Hubungan antara teman sejawat Advokat harus didasari atas rasa saling menghormati, menghargai dan mempercayai.",
+                legalBasis: "Pasal 5 KEAI (Kode Etik Advokat Indonesia)"
+            },
+
+            // CATEGORY 2: Hukum Acara Perdata (cat_2)
+            {
+                id: 201,
+                categoryId: "cat_2",
+                categoryName: "Hukum Acara Perdata",
+                question: "Sesuai ketentuan HIR/RBg, tenggang waktu bagi Tergugat untuk mengajukan Upaya Hukum Memori Banding adalah...",
+                options: [
+                    "A. 7 hari sejak putusan diucapkan atau diberitahukan",
+                    "B. 14 hari sejak putusan diucapkan atau diberitahukan",
+                    "C. 30 hari sejak putusan diucapkan",
+                    "D. 14 hari kerja sejak berkas diterima"
+                ],
+                correctAnswer: 1, // B
+                explanation: "Tenggang waktu pernyataan banding adalah 14 hari setelah putusan diucapkan atau diberitahukan secara sah apabila para pihak tidak hadir.",
+                legalBasis: "Pasal 196 HIR / Pasal 199 RBg / UU No. 20 Tahun 1947"
+            },
+            {
+                id: 202,
+                categoryId: "cat_2",
+                categoryName: "Hukum Acara Perdata",
+                question: "Gugatan yang diajukan oleh Penggugat mengandung cacat formil karena Penggugat tidak memiliki kapasitas hukum (legal standing). Tergugat dapat mengajukan eksepsi...",
+                options: [
+                    "A. Eksepsi Kompetensi Absolut",
+                    "B. Eksepsi Diskualifikatoir (Persona Standi in Judicio)",
+                    "C. Eksepsi Nebis in Idem",
+                    "D. Eksepsi Obscuur Libel"
+                ],
+                correctAnswer: 1, // B
+                explanation: "Eksepsi Persona Standi in Judicio diajukan jika pihak Penggugat dianggap tidak bertindak atau tidak mempunyai hak/kapasitas (legal standing) untuk mengajukan gugatan tersebut.",
+                legalBasis: "Yurisprudensi Mahkamah Agung & Doktrin Hukum Acara Perdata"
+            },
+            {
+                id: 203,
+                categoryId: "cat_2",
+                categoryName: "Hukum Acara Perdata",
+                question: "Prinsip 'Actor Sequitur Forum Rei' dalam Hukum Acara Perdata berarti gugatan pada dasarnya harus diajukan di...",
+                options: [
+                    "A. Pengadilan Negeri tempat barang sengketa berada",
+                    "B. Pengadilan Negeri di tempat tinggal Penggugat",
+                    "C. Pengadilan Negeri di tempat domisili / tempat tinggal Tergugat",
+                    "D. Pengadilan Negeri mana saja sesuai kesepakatan"
+                ],
+                correctAnswer: 2, // C
+                explanation: "Prinsip umum kompetensi relatif menyatakan bahwa gugatan diajukan ke Pengadilan Negeri tempat tinggal Tergugat (Actor Sequitur Forum Rei).",
+                legalBasis: "Pasal 118 ayat (1) HIR"
+            },
+
+            // CATEGORY 3: Hukum Acara Pidana (cat_3)
+            {
+                id: 301,
+                categoryId: "cat_3",
+                categoryName: "Hukum Acara Pidana",
+                question: "Lembaga Praperadilan menurut Pasal 77 KUHAP berwenang untuk memeriksa dan memutus hal-hal berikut, KECUALI...",
+                options: [
+                    "A. Sah atau tidaknya penangkapan dan/atau penahanan",
+                    "B. Sah atau tidaknya penghentian penyidikan atau penghentian penuntutan",
+                    "C. Besarnya ganti kerugian untuk korban kejahatan pidana umum dalam perkara pokok",
+                    "D. Sah atau tidaknya penetapan tersangka (Sesuai Putusan MK No. 21/PUU-XII/2014)"
+                ],
+                correctAnswer: 2, // C
+                explanation: "Ganti rugi/rehabilitasi dalam praperadilan terbatas pada akibat penangkapan/penahanan yang tidak sah, bukan vonis perkara pokok kejahatan.",
+                legalBasis: "Pasal 77 KUHAP & Putusan MK No. 21/PUU-XII/2014"
+            },
+            {
+                id: 302,
+                categoryId: "cat_3",
+                categoryName: "Hukum Acara Pidana",
+                question: "Dalam hukum pembuktian pidana (Pasal 184 KUHAP), manakah yang BUKAN merupakan alat bukti yang sah?",
+                options: [
+                    "A. Keterangan Saksi",
+                    "B. Keterangan Ahli & Surat",
+                    "C. Petunjuk & Keterangan Terdakwa",
+                    "D. Pengakuan sepihak dari Penyidik"
+                ],
+                correctAnswer: 3, // D
+                explanation: "Alat bukti sah menurut Pasal 184 KUHAP secara limitatif adalah: 1) Keterangan Saksi, 2) Keterangan Ahli, 3) Surat, 4) Petunjuk, 5) Keterangan Terdakwa.",
+                legalBasis: "Pasal 184 ayat (1) KUHAP"
+            },
+
+            // CATEGORY 4: Hukum Acara PTUN & Pengadilan Agama (cat_4)
+            {
+                id: 401,
+                categoryId: "cat_4",
+                categoryName: "Hukum Acara PTUN",
+                question: "Jangka waktu untuk mengajukan Gugatan Tata Usaha Negara ke PTUN sejak diterimanya atau diumumkannya Keputusan TUN adalah...",
+                options: [
+                    "A. 14 hari",
+                    "B. 30 hari",
+                    "C. 90 hari",
+                    "D. 180 hari"
+                ],
+                correctAnswer: 2, // C
+                explanation: "Gugatan TUN hanya dapat diajukan dalam tenggang waktu 90 (sembilan puluh) hari terhitung sejak saat diterimanya atau diumumkannya Keputusan Badan/Pejabat TUN.",
+                legalBasis: "Pasal 55 UU No. 5 Tahun 1986 jo. UU No. 51 Tahun 2009"
+            }
+        ];
+
+        const CATEGORIES = [
+            { id: "cat_1", title: "UU Advokat & Kode Etik", icon: "fa-gavel", desc: "UU No. 18/2003, Kode Etik Advokat, Hak Imunitas, Dewan Kehormatan." },
+            { id: "cat_2", title: "Hukum Acara Perdata", icon: "fa-scale-balanced", desc: "HIR/RBg, Surat Kuasa, Gugatan, Eksepsi, Pembuktian, Upaya Hukum Banding/Kasasi." },
+            { id: "cat_3", title: "Hukum Acara Pidana", icon: "fa-handcuffs", desc: "KUHAP, Praperadilan, Surat Dakwaan, Alat Bukti, Eksepsi Pidana, Pembelaan (Pledoi)." },
+            { id: "cat_4", title: "Hukum Acara PTUN & Agama", icon: "fa-building-columns", desc: "Sengketa KTUN, Tenggang Waktu 90 Hari, Cerai Talak/Gugat, Waris Islam." }
+        ];
+
+        /* ==========================================================================
+           2. STATE MANAGEMENT
+           ========================================================================== */
+        let state = {
+            currentTab: 'dashboard',
+            activeCategory: 'all',
+            activeQuestions: [],
+            currentIndex: 0,
+            answers: {},      // { qId: selectedOptionIndex }
+            flags: {},        // { qId: boolean }
+            bookmarks: [],    // [qId1, qId2]
+            mode: 'practice', // 'practice' or 'exam'
+            timerInterval: null,
+            timeRemainingSeconds: 0,
+            completedStats: {
+                totalAnswered: 0,
+                correctCount: 0,
+                tryoutCompleted: 0
+            }
+        };
+
+        /* ==========================================================================
+           3. INITIALIZATION & LOCALSTORAGE
+           ========================================================================== */
+        window.onload = function() {
+            loadFromLocalStorage();
+            renderCategoryGrid();
+            updateDashboardStats();
+            switchTab('dashboard');
+        };
+
+        function saveToLocalStorage() {
+            localStorage.setItem('ayo_advokat_bookmarks', JSON.stringify(state.bookmarks));
+            localStorage.setItem('ayo_advokat_stats', JSON.stringify(state.completedStats));
+        }
+
+        function loadFromLocalStorage() {
+            const b = localStorage.getItem('ayo_advokat_bookmarks');
+            if (b) state.bookmarks = JSON.parse(b);
+
+            const s = localStorage.getItem('ayo_advokat_stats');
+            if (s) state.completedStats = JSON.parse(s);
+        }
+
+        function resetAllData() {
+            if (confirm("Apakah Anda yakin ingin menghapus seluruh data latihan dan statistik terhitung?")) {
+                localStorage.clear();
+                state.bookmarks = [];
+                state.completedStats = { totalAnswered: 0, correctCount: 0, tryoutCompleted: 0 };
+                updateDashboardStats();
+                alert("Data berhasil direset.");
+                switchTab('dashboard');
+            }
+        }
+
+        /* ==========================================================================
+           4. NAVIGATION & TAB SWITCHING
+           ========================================================================== */
+        function switchTab(tabName) {
+            state.currentTab = tabName;
+
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Highlight sidebar button
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.classList.remove('bg-navy-900', 'text-white');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-navy-900', 'text-white');
+                activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+            }
+
+            // Show selected view
+            const viewEl = document.getElementById(`view-${tabName}`);
+            if (viewEl) viewEl.classList.remove('hidden');
+
+            // Hide Quiz top bar if not in quiz
+            if (tabName !== 'quiz') {
+                document.getElementById('top-quiz-info').classList.add('hidden');
+                stopTimer();
+            }
+
+            // Specific View Renders
+            if (tabName === 'dashboard') updateDashboardStats();
+            if (tabName === 'bookmarks') renderBookmarksView();
+        }
+
+        /* ==========================================================================
+           5. RENDER CATEGORIES & DASHBOARD
+           ========================================================================== */
+        function renderCategoryGrid() {
+            const dashGrid = document.getElementById('dashboard-category-grid');
+            const fullGrid = document.getElementById('category-list-full');
+
+            let dashHtml = '';
+            let fullHtml = '';
+
+            CATEGORIES.forEach(cat => {
+                const qCount = QUESTION_BANK.filter(q => q.categoryId === cat.id).length;
+
+                const cardHtml = `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-gold-500/50 hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="w-9 h-9 rounded-lg bg-navy-900 text-gold-400 flex items-center justify-center text-sm font-bold">
+                                    <i class="fa-solid ${cat.icon}"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-sm">${cat.title}</h3>
+                                    <span class="text-[11px] text-slate-500 font-medium">${qCount} Soal Tersedia</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-4">${cat.desc}</p>
+                        </div>
+                        <button onclick="startPracticeCategory('${cat.id}')" class="w-full py-2 bg-white hover:bg-navy-900 hover:text-white text-navy-900 border border-navy-900 text-xs font-bold rounded-lg transition">
+                            Mulai Latihan
+                        </button>
+                    </div>
+                `;
+
+                dashHtml += cardHtml;
+                fullHtml += cardHtml;
+            });
+
+            dashGrid.innerHTML = dashHtml;
+            fullGrid.innerHTML = fullHtml;
+        }
+
+        function updateDashboardStats() {
+            const total = state.completedStats.totalAnswered || 0;
+            const correct = state.completedStats.correctCount || 0;
+            const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+            document.getElementById('dash-stat-total').innerText = total;
+            document.getElementById('dash-stat-accuracy').innerText = accuracy + '%';
+            document.getElementById('dash-stat-tryouts').innerText = state.completedStats.tryoutCompleted || 0;
+            document.getElementById('dash-stat-bookmarks').innerText = state.bookmarks.length;
+        }
+
+        /* ==========================================================================
+           6. QUIZ ENGINE LOGIC
+           ========================================================================== */
+        function startPracticeCategory(catId) {
+            state.activeCategory = catId;
+            state.activeQuestions = QUESTION_BANK.filter(q => q.categoryId === catId);
+            if (state.activeQuestions.length === 0) {
+                alert("Soal untuk kategori ini belum tersedia.");
+                return;
+            }
+
+            const cat = CATEGORIES.find(c => c.id === catId);
+            document.getElementById('quiz-title').innerText = "Latihan: " + (cat ? cat.title : "Materi");
+            document.getElementById('quiz-category-badge').innerText = cat ? cat.title : "Materi";
+
+            setupQuizSession('practice', 15 * 60); // 15 Mins
+        }
+
+        function startTryoutSimulation() {
+            state.activeCategory = 'all';
+            state.activeQuestions = [...QUESTION_BANK]; // All Questions
+            document.getElementById('quiz-title').innerText = "Simulasi Full Try Out UPA";
+            document.getElementById('quiz-category-badge').innerText = "FULL TRY OUT";
+
+            setupQuizSession('exam', 30 * 60); // 30 Mins countdown
+        }
+
+        function setupQuizSession(mode, timerSeconds) {
+            state.mode = mode;
+            state.currentIndex = 0;
+            state.answers = {};
+            state.flags = {};
+
+            setQuizMode(mode);
+            switchTab('quiz');
+
+            // Show & Start Timer
+            document.getElementById('top-quiz-info').classList.remove('hidden');
+            startTimer(timerSeconds);
+
+            renderCurrentQuestion();
+            renderQuestionGrid();
+        }
+
+        function setQuizMode(mode) {
+            state.mode = mode;
+            const pBtn = document.getElementById('mode-practice-btn');
+            const eBtn = document.getElementById('mode-exam-btn');
+
+            if (mode === 'practice') {
+                pBtn.className = "px-3 py-1.5 rounded text-xs font-semibold bg-navy-900 text-white shadow-sm transition";
+                eBtn.className = "px-3 py-1.5 rounded text-xs font-semibold text-slate-600 hover:bg-slate-200 transition";
+            } else {
+                eBtn.className = "px-3 py-1.5 rounded text-xs font-semibold bg-navy-900 text-white shadow-sm transition";
+                pBtn.className = "px-3 py-1.5 rounded text-xs font-semibold text-slate-600 hover:bg-slate-200 transition";
+            }
+
+            renderCurrentQuestion(); // Re-render to show/hide explanation
+        }
+
+        function renderCurrentQuestion() {
+            const q = state.activeQuestions[state.currentIndex];
+            if (!q) return;
+
+            // Render Header & Text
+            document.getElementById('current-question-num').innerText = state.currentIndex + 1;
+            document.getElementById('total-questions-num').innerText = state.activeQuestions.length;
+            document.getElementById('question-text').innerText = q.question;
+
+            // Update Progress Header Text
+            const answeredCount = Object.keys(state.answers).length;
+            document.getElementById('quiz-progress-text').innerText = `${answeredCount}/${state.activeQuestions.length}`;
+
+            // Render Options
+            const optionsContainer = document.getElementById('options-container');
+            const selectedOpt = state.answers[q.id];
+
+            optionsContainer.innerHTML = q.options.map((optText, optIdx) => {
+                let btnStyle = "bg-white border-slate-200 text-slate-700 hover:bg-slate-50";
+
+                if (selectedOpt === optIdx) {
+                    btnStyle = "bg-navy-900/5 border-navy-900 text-navy-900 font-semibold ring-1 ring-navy-900";
+                }
+
+                // Show Instant Answer feedback if in practice mode and answered
+                if (state.mode === 'practice' && selectedOpt !== undefined) {
+                    if (optIdx === q.correctAnswer) {
+                        btnStyle = "bg-emerald-500/10 border-emerald-600 text-emerald-800 font-semibold";
+                    } else if (selectedOpt === optIdx && selectedOpt !== q.correctAnswer) {
+                        btnStyle = "bg-rose-500/10 border-rose-500 text-rose-800 font-semibold";
+                    }
+                }
+
+                return `
+                    <button onclick="selectOption(${optIdx})" class="w-full text-left p-3.5 rounded-xl border text-sm transition flex items-start space-x-3 ${btnStyle}">
+                        <div class="mt-0.5 w-5 h-5 rounded-full border border-current flex items-center justify-center shrink-0 text-xs font-bold">
+                            ${String.fromCharCode(65 + optIdx)}
+                        </div>
+                        <span class="flex-1">${optText}</span>
+                    </button>
+                `;
+            }).join('');
+
+            // Explanation Display
+            const expBox = document.getElementById('explanation-box');
+            if (state.mode === 'practice' && selectedOpt !== undefined) {
+                expBox.classList.remove('hidden');
+                document.getElementById('explanation-text').innerText = q.explanation;
+                document.getElementById('legal-basis-tag').innerText = "Dasar Hukum: " + (q.legalBasis || "-");
+            } else {
+                expBox.classList.add('hidden');
+            }
+
+            // Flag & Bookmark States
+            const flagBtn = document.getElementById('flag-btn');
+            if (state.flags[q.id]) {
+                flagBtn.className = "flex items-center space-x-1.5 text-xs text-amber-700 bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-300 font-bold transition";
+            } else {
+                flagBtn.className = "flex items-center space-x-1.5 text-xs text-slate-500 hover:text-amber-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 transition";
+            }
+
+            const bookmarkBtn = document.getElementById('bookmark-btn');
+            if (state.bookmarks.includes(q.id)) {
+                bookmarkBtn.className = "flex items-center space-x-1.5 text-xs text-gold-700 bg-gold-100 px-3 py-1.5 rounded-lg border border-gold-300 font-bold transition";
+            } else {
+                bookmarkBtn.className = "flex items-center space-x-1.5 text-xs text-slate-500 hover:text-gold-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 transition";
+            }
+
+            // Navigation Buttons Control
+            document.getElementById('prev-q-btn').disabled = (state.currentIndex === 0);
+            
+            const isLast = (state.currentIndex === state.activeQuestions.length - 1);
+            if (isLast) {
+                document.getElementById('next-q-btn').classList.add('hidden');
+                document.getElementById('finish-quiz-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('next-q-btn').classList.remove('hidden');
+                document.getElementById('finish-quiz-btn').classList.add('hidden');
+            }
+
+            renderQuestionGrid();
+        }
+
+        function selectOption(optIndex) {
+            const q = state.activeQuestions[state.currentIndex];
+            state.answers[q.id] = optIndex;
+            renderCurrentQuestion();
+        }
+
+        function navigateQuestion(direction) {
+            const newIndex = state.currentIndex + direction;
+            if (newIndex >= 0 && newIndex < state.activeQuestions.length) {
+                state.currentIndex = newIndex;
+                renderCurrentQuestion();
+            }
+        }
+
+        function jumpToQuestion(index) {
+            state.currentIndex = index;
+            renderCurrentQuestion();
+        }
+
+        function toggleFlagCurrentQuestion() {
+            const q = state.activeQuestions[state.currentIndex];
+            state.flags[q.id] = !state.flags[q.id];
+            renderCurrentQuestion();
+        }
+
+        function toggleBookmarkCurrentQuestion() {
+            const q = state.activeQuestions[state.currentIndex];
+            const idx = state.bookmarks.indexOf(q.id);
+            if (idx > -1) {
+                state.bookmarks.splice(idx, 1);
+            } else {
+                state.bookmarks.push(q.id);
+            }
+            saveToLocalStorage();
+            renderCurrentQuestion();
+        }
+
+        /* ==========================================================================
+           7. QUESTION GRID NAVIGATOR
+           ========================================================================== */
+        function renderQuestionGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = state.activeQuestions.map((q, idx) => {
+                const isCurrent = (idx === state.currentIndex);
+                const isAnswered = state.answers[q.id] !== undefined;
+                const isFlagged = state.flags[q.id];
+
+                let btnClass = "bg-white border-slate-300 text-slate-700 hover:bg-slate-100";
+
+                if (isAnswered) {
+                    btnClass = "bg-navy-900 border-navy-900 text-white font-bold";
+                }
+                if (isFlagged) {
+                    btnClass = "bg-amber-500 border-amber-500 text-white font-bold";
+                }
+                if (isCurrent) {
+                    btnClass += " ring-2 ring-gold-500 ring-offset-1 font-extrabold";
+                }
+
+                return `
+                    <button onclick="jumpToQuestion(${idx})" class="w-full h-9 rounded-lg border text-xs flex items-center justify-center transition ${btnClass}">
+                        ${idx + 1}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        /* ==========================================================================
+           8. TIMER CONTROL
+           ========================================================================== */
+        function startTimer(seconds) {
+            stopTimer();
+            state.timeRemainingSeconds = seconds;
+            updateTimerDisplay();
+
+            state.timerInterval = setInterval(() => {
+                state.timeRemainingSeconds--;
+                updateTimerDisplay();
+
+                if (state.timeRemainingSeconds <= 0) {
+                    stopTimer();
+                    alert("Waktu pengerjaan ujian telah habis!");
+                    submitQuizNow();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+        }
+
+        function updateTimerDisplay() {
+            const h = Math.floor(state.timeRemainingSeconds / 3600);
+            const m = Math.floor((state.timeRemainingSeconds % 3600) / 60);
+            const s = state.timeRemainingSeconds % 60;
+
+            const format = (num) => String(num).padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${format(h)}:${format(m)}:${format(s)}`;
+        }
+
+        /* ==========================================================================
+           9. SUBMISSION & RESULT ANALYTICS
+           ========================================================================== */
+        function finishQuizConfirmation() {
+            document.getElementById('modal-confirm').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-confirm').classList.add('hidden');
+        }
+
+        function submitQuizNow() {
+            closeModal();
+            stopTimer();
+
+            let correctCount = 0;
+            let wrongCount = 0;
+            let emptyCount = 0;
+
+            const reviewHtmlList = state.activeQuestions.map((q, idx) => {
+                const userAns = state.answers[q.id];
+                const isCorrect = (userAns === q.correctAnswer);
+                const isUnanswered = (userAns === undefined);
+
+                if (isUnanswered) emptyCount++;
+                else if (isCorrect) correctCount++;
+                else wrongCount++;
+
+                let statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-bold">Benar</span>`;
+                if (isUnanswered) {
+                    statusBadge = `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded font-bold">Tidak Dijawab</span>`;
+                } else if (!isCorrect) {
+                    statusBadge = `<span class="bg-rose-100 text-rose-800 text-xs px-2 py-0.5 rounded font-bold">Salah</span>`;
+                }
+
+                return `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-slate-800">Soal #${idx + 1} (${q.categoryName})</span>
+                            ${statusBadge}
+                        </div>
+                        <p class="text-slate-700">${q.question}</p>
+                        <div class="text-xs text-slate-600 bg-white p-2.5 rounded border border-slate-200 space-y-1">
+                            <div><span class="font-semibold">Jawaban Anda:</span> ${userAns !== undefined ? q.options[userAns] : '-'}</div>
+                            <div><span class="font-semibold text-emerald-700">Jawaban Benar:</span> ${q.options[q.correctAnswer]}</div>
+                        </div>
+                        <div class="text-xs text-slate-500 bg-amber-500/5 p-2 rounded border border-amber-500/20">
+                            <strong>Pembahasan:</strong> ${q.explanation} <br>
+                            <span class="text-amber-700 font-semibold">Dasar Hukum: ${q.legalBasis}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Calculate Score (Scale 0 - 100)
+            const score = Math.round((correctCount / state.activeQuestions.length) * 100);
+
+            // Update DOM Results
+            document.getElementById('result-score-digit').innerText = score;
+            document.getElementById('result-correct-count').innerText = correctCount;
+            document.getElementById('result-wrong-count').innerText = wrongCount;
+            document.getElementById('result-empty-count').innerText = emptyCount;
+
+            const statusBadge = document.getElementById('result-status-badge');
+            if (score >= 70) {
+                statusBadge.className = "mt-2 inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                statusBadge.innerText = "DILAPORKAN LULUS (≥70)";
+            } else {
+                statusBadge.className = "mt-2 inline-block px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30";
+                statusBadge.innerText = "BELUM MEMENUHI SYARAT KELULUSAN (<70)";
+            }
+
+            document.getElementById('analytics-review-list').innerHTML = reviewHtmlList;
+
+            // Update Persistence Stats
+            state.completedStats.totalAnswered += (correctCount + wrongCount);
+            state.completedStats.correctCount += correctCount;
+            if (state.mode === 'exam') state.completedStats.tryoutCompleted += 1;
+            saveToLocalStorage();
+
+            switchTab('analytics');
+        }
+
+        /* ==========================================================================
+           10. BOOKMARKS VIEW
+           ========================================================================== */
+        function renderBookmarksView() {
+            const container = document.getElementById('bookmarks-list');
+            if (state.bookmarks.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 text-sm italic">Belum ada soal yang ditandai untuk dipelajari kembali.</p>`;
+                return;
+            }
+
+            const bookmarkedQuestions = QUESTION_BANK.filter(q => state.bookmarks.includes(q.id));
+
+            container.innerHTML = bookmarkedQuestions.map((q) => {
+                return `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="bg-navy-900 text-gold-400 text-xs px-2.5 py-0.5 rounded font-semibold uppercase">${q.categoryName}</span>
+                            <button onclick="removeBookmark(${q.id})" class="text-xs text-rose-600 hover:underline">
+                                <i class="fa-solid fa-trash mr-1"></i> Hapus Bookmark
+                            </button>
+                        </div>
+                        <p class="font-medium text-slate-800">${q.question}</p>
+                        <div class="text-xs text-slate-600 bg-white p-3 rounded border border-slate-200 space-y-1">
+                            <div><span class="font-bold text-emerald-700">Kunci Jawaban:</span> ${q.options[q.correctAnswer]}</div>
+                            <div class="mt-2 text-slate-500"><strong>Pembahasan:</strong> ${q.explanation}</div>
+                            <div class="text-gold-600 font-semibold mt-1">Dasar Hukum: ${q.legalBasis}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeBookmark(qId) {
+            const idx = state.bookmarks.indexOf(qId);
+            if (idx > -1) {
+                state.bookmarks.splice(idx, 1);
+                saveToLocalStorage();
+                renderBookmarksView();
+                updateDashboardStats();
+            }
+        }
+    </script>
+</body>
+</html>
